@@ -51,10 +51,7 @@ function usePdfPreview(bytes: Uint8Array | null) {
     });
     task.promise.then(
       (result) => {
-        if (cancelled) {
-          void result.destroy();
-          return;
-        }
+        if (cancelled) return;
         setDoc(result);
       },
       () => {
