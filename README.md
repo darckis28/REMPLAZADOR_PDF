@@ -39,6 +39,14 @@ npm run build
 
 No se necesita backend ni clave de API.
 
+## Indexación en Google
+
+El sitio publica `robots.txt` y `sitemap.xml` desde `public/`. Después de
+desplegarlo en `https://cambialo.netlify.app/`, añade el dominio a Google Search
+Console y envía `https://cambialo.netlify.app/sitemap.xml` desde la sección
+**Sitemaps**. La página principal incluye URL canónica, metadatos para compartir
+y datos estructurados.
+
 ## Cómo utilizar
 
 1. Arrastra o carga el **PDF original** en el panel izquierdo.

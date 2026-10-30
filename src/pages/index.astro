@@ -7,14 +7,9 @@ import "../styles/global.css";
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
-    <meta
-      name="theme-color"
-      content="#0b101b"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b101b" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta
       name="google-site-verification"
       content="BqrLXjKO6zAH_9oWUmWkyfu505NYQ95TqpDOe1c7wmU"
@@ -24,12 +19,114 @@ import "../styles/global.css";
       content="Reemplaza páginas PDF sin modificar el resto de tu documento. Gratis, sin registros y sin subir archivos al servidor."
     />
     <title>CAMBIALO — Reemplazador de páginas PDF</title>
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="/favicon.svg"
+    <link rel="canonical" href="https://cambialo.netlify.app/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CAMBIALO" />
+    <meta
+      property="og:title"
+      content="CAMBIALO — Reemplazador de páginas PDF"
     />
+    <meta
+      property="og:description"
+      content="Reemplaza páginas de un PDF gratis y de forma privada. Tus documentos se procesan en tu navegador."
+    />
+    <meta property="og:url" content="https://cambialo.netlify.app/" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "CAMBIALO",
+        "url": "https://cambialo.netlify.app/",
+        "description": "Reemplaza páginas de documentos PDF gratis y de forma privada, directamente en el navegador.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "es",
+        "isAccessibleForFree": true
+      }
+    </script>
   </head>
 
-  <body><PdfPageReplacer client:only="react" /></body>
+  <body>
+    <PdfPageReplacer client:only="react" />
+    <main class="seo-content">
+      <section aria-labelledby="how-it-works">
+        <h2 id="how-it-works">Cómo reemplazar páginas de un PDF</h2>
+        <p>
+          Con CAMBIALO puedes sustituir una página de un documento PDF por una
+          página de otro archivo, sin alterar el resto del original. No necesitas
+          instalar programas ni crear una cuenta.
+        </p>
+        <ol>
+          <li>Selecciona el PDF original que quieres editar.</li>
+          <li>Selecciona el PDF que contiene la página nueva.</li>
+          <li>Elige las páginas y pulsa «Reemplazar página».</li>
+          <li>Descarga el documento PDF actualizado.</li>
+        </ol>
+      </section>
+
+      <section aria-labelledby="privacy">
+        <h2 id="privacy">Tus documentos permanecen privados</h2>
+        <p>
+          Los archivos se procesan localmente en tu navegador y no se envían a
+          un servidor. Puedes reemplazar páginas PDF gratis y descargar el
+          resultado en tu dispositivo.
+        </p>
+      </section>
+
+      <section aria-labelledby="questions">
+        <h2 id="questions">Preguntas frecuentes</h2>
+        <h3>¿Puedo reemplazar varias páginas?</h3>
+        <p>
+          Sí. Repite la selección y el reemplazo para cada página que necesites
+          cambiar antes de descargar el PDF.
+        </p>
+        <h3>¿Se modifica el resto del documento?</h3>
+        <p>
+          No. La herramienta sustituye únicamente las páginas que seleccionas y
+          conserva las demás páginas del PDF original.
+        </p>
+        <h3>¿Tengo que subir mis archivos a Internet?</h3>
+        <p>
+          No. El procesamiento se realiza en tu navegador; tus documentos no se
+          cargan en nuestros servidores.
+        </p>
+      </section>
+    </main>
+    <style>
+      .seo-content {
+        width: min(820px, calc(100% - 48px));
+        margin: 0 auto;
+        padding: 24px 0 64px;
+        color: #c1c8d6;
+        font-size: 15px;
+        line-height: 1.75;
+      }
+
+      .seo-content section + section {
+        margin-top: 32px;
+      }
+
+      .seo-content h2 {
+        margin: 0 0 12px;
+        color: #eef0f8;
+        font-size: 22px;
+      }
+
+      .seo-content h3 {
+        margin: 20px 0 4px;
+        color: #eef0f8;
+        font-size: 16px;
+      }
+
+      .seo-content p {
+        margin: 0;
+      }
+
+      .seo-content ol {
+        padding-left: 24px;
+      }
+    </style>
+  </body>
 </html>
