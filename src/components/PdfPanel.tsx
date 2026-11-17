@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
-import { ArrowUpFromLine, Check, Eye, FileText, FolderOpen, RefreshCw, UploadCloud } from 'lucide-react';
+import { ArrowUpFromLine, Check, ExternalLink, Eye, FileText, FolderOpen, RefreshCw, UploadCloud } from 'lucide-react';
 import PdfThumbnail from './PdfThumbnail';
 import type { PdfFile } from '../lib/pdf';
 import { readableSize } from '../lib/pdf';
@@ -11,12 +11,14 @@ type Props = {
   pdf: PdfFile | null; previewDoc: PDFDocumentProxy | null;
   selectedPage: number; onSelect: (index: number) => void;
   onFile: (file: File) => void; onPreview: (page: number) => void;
+  onNativePreview: (page: number) => void; previewError?: boolean;
   changes?: number[]; loading?: boolean; action?: 'replace' | 'insert';
 };
 
 export default function PdfPanel({
   variant, title, description, pdf, previewDoc, selectedPage,
-  onSelect, onFile, onPreview, changes = [], loading = false, action = 'replace',
+  onSelect, onFile, onPreview, onNativePreview, previewError = false,
+  changes = [], loading = false, action = 'replace',
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -58,15 +60,23 @@ export default function PdfPanel({
           </div>
           <div className="pages-heading">
             <span>SELECCIONA UNA PÁGINA</span>
-            <button type="button" className="preview-link" onClick={() => onPreview(selectedPage)} disabled={!previewDoc}>
-              <Eye size={14} /> Ver ampliada
-            </button>
+            <div className="preview-actions">
+              <button type="button" className="preview-link" onClick={() => onPreview(selectedPage)} disabled={!previewDoc}>
+                <Eye size={14} /> Ampliar
+              </button>
+              <button type="button" className="preview-link native-preview-link" onClick={() => onNativePreview(selectedPage)}
+                title="Abre el documento en el visor PDF integrado de tu navegador">
+                <ExternalLink size={14} /> Otro visor
+              </button>
+            </div>
           </div>
+          {previewError && <p className="preview-inline-error">El visor de miniaturas no pudo abrir este archivo. Prueba «Otro visor» para verlo completo.</p>}
           <div className="pages-grid-scroll" role="region" aria-label={`Páginas de ${title}`} tabIndex={0}>
             <div className="pages-grid">
               {Array.from({ length: pdf.pageCount }, (_, index) => (
                 <PdfThumbnail key={index} doc={previewDoc} pageIndex={index}
                   selected={selectedPage === index} changed={changes.includes(index)}
+                  previewError={previewError}
                   variant={variant} onSelect={() => onSelect(index)}
                   onPreview={() => { onSelect(index); onPreview(index); }} />
               ))}

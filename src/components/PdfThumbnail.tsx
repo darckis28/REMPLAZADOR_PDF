@@ -7,13 +7,14 @@ type Props = {
   pageIndex: number;
   selected: boolean;
   changed?: boolean;
+  previewError?: boolean;
   variant: 'original' | 'replacement';
   onSelect: () => void;
   onPreview: () => void;
 };
 
 export default function PdfThumbnail({
-  doc, pageIndex, selected, changed = false, variant, onSelect, onPreview,
+  doc, pageIndex, selected, changed = false, previewError = false, variant, onSelect, onPreview,
 }: Props) {
   const outerRef = useRef<HTMLButtonElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -46,7 +47,7 @@ export default function PdfThumbnail({
         if (cancelled) return;
         const canvas = canvasRef.current;
         const context = canvas?.getContext('2d', { alpha: false });
-        if (!canvas || !context) return;
+        if (!canvas || !context) throw new Error('No fue posible crear el lienzo de vista previa.');
         const viewport = page.getViewport({ scale: 1 });
         const scale = Math.min(132 / viewport.width, 139 / viewport.height);
         const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -73,8 +74,13 @@ export default function PdfThumbnail({
       aria-label={`Seleccionar página ${pageIndex + 1}${changed ? ', modificada' : ''}`}
       title="Seleccionar página. Doble clic para ampliar.">
       <span className="page-paper">
-        {!ready && !failed && <span className="page-skeleton" />}
-        {failed && <FileText size={27} strokeWidth={1.5} className="page-error-icon" />}
+        {!ready && !failed && !previewError && <span className="page-skeleton" />}
+        {(failed || previewError) && (
+          <span className="page-error-message">
+            <FileText size={25} strokeWidth={1.5} />
+            <span>Vista no disponible</span>
+          </span>
+        )}
         <canvas ref={canvasRef} className={ready ? 'canvas-ready' : 'canvas-hidden'} />
         <span className="page-hover-zoom" aria-hidden="true"><ZoomIn size={16} /></span>
       </span>

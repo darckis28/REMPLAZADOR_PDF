@@ -15,6 +15,9 @@ import {
 import type { PdfFile } from '../lib/pdf';
 
 GlobalWorkerOptions.workerSrc = workerUrl;
+// Algunos PDF (por ejemplo, escaneos JPEG2000/JBIG2 y fuentes CJK)
+// necesitan estos recursos para no mostrar páginas en blanco.
+const pdfAssetsBase = `${import.meta.env.BASE_URL}pdfjs/`;
 
 type Busy = 'original' | 'replacement' | 'change' | null;
 type EditMode = 'replace' | 'insert';
@@ -32,7 +35,16 @@ function usePdfPreview(bytes: Uint8Array | null) {
     if (!bytes) return;
     let cancelled = false;
     // pdf.js puede transferir el buffer al worker. Nunca entregamos el original.
-    const task = getDocument({ data: new Uint8Array(bytes), useSystemFonts: true });
+    const task = getDocument({
+      data: new Uint8Array(bytes),
+      useSystemFonts: true,
+      cMapUrl: `${pdfAssetsBase}cmaps/`,
+      cMapPacked: true,
+      standardFontDataUrl: `${pdfAssetsBase}standard_fonts/`,
+      wasmUrl: `${pdfAssetsBase}wasm/`,
+      iccUrl: `${pdfAssetsBase}iccs/`,
+      enableXfa: true,
+    });
     task.promise.then(
       (result) => {
         if (cancelled) return; // La tarea de carga se destruye en el cleanup del efecto.
@@ -200,6 +212,21 @@ export default function PdfPageReplacer() {
     setNotice('El PDF editado está listo para guardar.');
   }
 
+  function openNativePreview(side: 'original' | 'replacement', pageIndex: number) {
+    const bytes = side === 'original' ? workingBytes : replacement?.bytes;
+    if (!bytes) return;
+    const url = URL.createObjectURL(makePdfBlob(bytes));
+    const link = document.createElement('a');
+    link.href = `${url}#page=${pageIndex + 1}`;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    // Deja tiempo al visor integrado del navegador para abrir el archivo.
+    window.setTimeout(() => URL.revokeObjectURL(url), 120_000);
+  }
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -250,12 +277,16 @@ export default function PdfPageReplacer() {
             pdf={workingPdf} previewDoc={currentPreview.doc} selectedPage={target}
             onSelect={setTarget} onFile={(file) => { void uploadOriginal(file); }}
             onPreview={(page) => setPreview({ side: 'original', page })}
+            onNativePreview={(page) => openNativePreview('original', page)}
+            previewError={currentPreview.error}
             changes={uniqueChanged} loading={busy === 'original'} action={mode} />
           <div className="middle-exchange" aria-hidden="true"><ArrowRight size={19} /></div>
           <PdfPanel variant="replacement" title="PDF con hojas nuevas" description="El documento con la hoja que quieres usar"
             pdf={replacement} previewDoc={sourcePreview.doc} selectedPage={source}
             onSelect={setSource} onFile={(file) => { void uploadReplacement(file); }}
             onPreview={(page) => setPreview({ side: 'replacement', page })}
+            onNativePreview={(page) => openNativePreview('replacement', page)}
+            previewError={sourcePreview.error}
             loading={busy === 'replacement'} />
         </div>
 
@@ -355,6 +386,7 @@ export default function PdfPageReplacer() {
         doc={preview.side === 'original' ? currentPreview.doc : sourcePreview.doc}
         pageIndex={preview.page}
         title={preview.side === 'original' ? 'PDF original' : 'PDF de reemplazo'}
+        onNativePreview={() => openNativePreview(preview.side, preview.page)}
         onClose={() => setPreview(null)} />}
     </div>
   );
