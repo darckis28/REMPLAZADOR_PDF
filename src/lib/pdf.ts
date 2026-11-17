@@ -53,6 +53,43 @@ export async function replacePdfPage(
   return base.save({ updateFieldAppearances: false });
 }
 
+/** Inserta una hoja del segundo documento, sin eliminar las existentes. */
+export async function insertPdfPage(
+  baseBytes: Uint8Array,
+  donorBytes: Uint8Array,
+  insertionIndex: number,
+  donorIndex: number,
+): Promise<Uint8Array> {
+  const base = await PDFDocument.load(baseBytes, { updateMetadata: false });
+  const donor = await PDFDocument.load(donorBytes, { updateMetadata: false });
+  if (!Number.isInteger(insertionIndex) || insertionIndex < 0 || insertionIndex > base.getPageCount()) {
+    throw new Error('La posición donde quieres insertar la hoja no es válida.');
+  }
+  if (!Number.isInteger(donorIndex) || donorIndex < 0 || donorIndex >= donor.getPageCount()) {
+    throw new Error('La página que quieres añadir ya no existe.');
+  }
+  const [page] = await base.copyPages(donor, [donorIndex]);
+  base.insertPage(insertionIndex, page);
+  return base.save({ updateFieldAppearances: false });
+}
+
+/** Añade una hoja vacía con el tamaño de la página seleccionada. */
+export async function insertBlankPdfPage(
+  baseBytes: Uint8Array,
+  insertionIndex: number,
+  referenceIndex: number,
+): Promise<Uint8Array> {
+  const base = await PDFDocument.load(baseBytes, { updateMetadata: false });
+  const count = base.getPageCount();
+  if (!Number.isInteger(insertionIndex) || insertionIndex < 0 || insertionIndex > count ||
+      !Number.isInteger(referenceIndex) || referenceIndex < 0 || referenceIndex >= count) {
+    throw new Error('La posición seleccionada no es válida.');
+  }
+  const { width, height } = base.getPage(referenceIndex).getSize();
+  base.insertPage(insertionIndex, [width, height]);
+  return base.save({ updateFieldAppearances: false });
+}
+
 export function makePdfBlob(bytes: Uint8Array): Blob {
   const buffer = new ArrayBuffer(bytes.byteLength);
   new Uint8Array(buffer).set(bytes);
@@ -61,5 +98,5 @@ export function makePdfBlob(bytes: Uint8Array): Blob {
 
 export function downloadName(originalName: string): string {
   const stem = originalName.replace(/\.pdf$/i, '').trim() || 'documento';
-  return `${stem}_paginas_reemplazadas.pdf`;
+  return `${stem}_paginas_editadas.pdf`;
 }

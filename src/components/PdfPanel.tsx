@@ -11,12 +11,12 @@ type Props = {
   pdf: PdfFile | null; previewDoc: PDFDocumentProxy | null;
   selectedPage: number; onSelect: (index: number) => void;
   onFile: (file: File) => void; onPreview: (page: number) => void;
-  changes?: number[]; loading?: boolean;
+  changes?: number[]; loading?: boolean; action?: 'replace' | 'insert';
 };
 
 export default function PdfPanel({
   variant, title, description, pdf, previewDoc, selectedPage,
-  onSelect, onFile, onPreview, changes = [], loading = false,
+  onSelect, onFile, onPreview, changes = [], loading = false, action = 'replace',
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -73,7 +73,9 @@ export default function PdfPanel({
             </div>
           </div>
           <div className="panel-footnote"><Check size={14} />
-            <span>{isOriginal ? 'Hoja que se reemplazará' : 'Hoja que se copiará'}: <strong>{selectedPage + 1}</strong></span>
+            <span>{isOriginal
+              ? action === 'insert' ? 'Hoja de referencia para insertar' : 'Hoja que se reemplazará'
+              : 'Hoja que se copiará'}: <strong>{selectedPage + 1}</strong></span>
           </div>
         </>
       ) : (
